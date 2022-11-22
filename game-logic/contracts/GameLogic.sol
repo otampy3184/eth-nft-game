@@ -122,6 +122,6 @@ contract GameLogic is ERC721 {
         string memory outoput = string(
             abi.encodePacked("data:application/json;base64,", json)
         );
-        return outoput
+        return outoput;
     }
 }
