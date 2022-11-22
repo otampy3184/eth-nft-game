@@ -15,6 +15,12 @@ const main = async () => {
     await gameLogicContract.deployed()
 
     console.log("contract deployed at:", gameLogicContract.address)
+
+    let tx = await gameLogicContract.mintCharacterNFT(2)
+    await tx.wait()
+
+    let returnedTokenUri = await gameLogicContract.tokenURI(1)
+    console.log("TokenURI:", returnedTokenUri)
 }
 
 const runMain = async () => {
