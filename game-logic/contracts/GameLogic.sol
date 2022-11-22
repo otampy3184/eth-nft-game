@@ -6,6 +6,8 @@ import "../node_modules/@openzeppelin/contracts/utils/Counters.sol";
 import "../node_modules/@openzeppelin/contracts/utils/Strings.sol";
 import "../node_modules/hardhat/console.sol";
 
+import "./libraries/Base64.sol";
+
 contract GameLogic is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -69,10 +71,57 @@ contract GameLogic is ERC721 {
             attackDamage: defaultCharacters[_characterIndex].attackDamage
         });
 
-        console.log("Minted NFT /w tokenId %s and characterIndex %s", newItemId, _characterIndex);
+        console.log(
+            "Minted NFT /w tokenId %s and characterIndex %s",
+            newItemId,
+            _characterIndex
+        );
 
         nftHolders[msg.sender] = newItemId;
 
         _tokenIds.increment();
+    }
+
+    function tokenURI(uint256 _tokenId)
+        public
+        view
+        override
+        returns (string memory)
+    {
+        CharacterAttributes memory charAttributes = nftHoldersAttributes[
+            _tokenId
+        ];
+
+        // Json内で利用できるように変換する
+        string memory strHp = Strings.toString(charAttributes.hp);
+        string memory strMaxHp = Strings.toString(charAttributes.maxHp);
+        string memory strAttackDamage = Strings.toString(
+            charAttributes.attackDamage
+        );
+
+        // abi.encodePackedで文字列を結合し、Json形式にする
+        string memory json = Base64.encode(
+            abi.encodePacked(
+                '{"name": "',
+                charAttributes.name,
+                " -- NFT #: ",
+                Strings.toString(_tokenId),
+                '", "description": "This is an NFT that lets people play in the game Metaverse Slayer!", "image": "',
+                charAttributes.imageURI,
+                '", "attributes": [ { "trait_type": "Health Points", "value": ',
+                strHp,
+                ', "max_value":',
+                strMaxHp,
+                '}, { "trait_type": "Attack Damage", "value": ',
+                strAttackDamage,
+                "} ]}"
+            )
+        );
+
+        // DataURLを結合
+        string memory outoput = string(
+            abi.encodePacked("data:application/json;base64,", json)
+        );
+        return outoput
     }
 }
