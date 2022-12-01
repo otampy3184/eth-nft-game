@@ -20,6 +20,17 @@ contract GameLogic is ERC721 {
         uint256 maxHp;
         uint256 attackDamage;
     }
+
+    struct BigBoss {
+        string name;
+        string imageURI;
+        uint hp;
+        uint maxHp;
+        uint attackDamage;
+    }
+    
+    BigBoss public bigBoss;
+
     CharacterAttributes[] defaultCharacters;
 
     mapping(uint256 => CharacterAttributes) public nftHoldersAttributes;
