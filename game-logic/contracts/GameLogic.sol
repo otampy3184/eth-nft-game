@@ -28,7 +28,7 @@ contract GameLogic is ERC721 {
         uint maxHp;
         uint attackDamage;
     }
-    
+
     BigBoss public bigBoss;
 
     CharacterAttributes[] defaultCharacters;
@@ -40,8 +40,19 @@ contract GameLogic is ERC721 {
         string[] memory characterNames,
         string[] memory characterImageURIs,
         uint256[] memory characterHp,
-        uint256[] memory characterAttackDmg
+        uint256[] memory characterAttackDmg,
+        string memory bossName,
+        string memory bossImageURI,
+        uint bossHp,
+        uint bossAttackDamage
     ) ERC721("NFTGame", "ONFTG") {
+        bigBoss = BigBoss({
+            name: bossName,
+            imageURI: bossImageURI,
+            hp: bossHp,
+            maxHp: bossHp,
+            attackDamage: bossAttackDamage
+        });
         // ゲームで扱う全てのキャラクターをループ処理で呼び出し、それぞれのキャラクターに付与されるデフォルト値をコントラクトに保存
         for (uint256 i = 0; i < characterNames.length; i += 1) {
             defaultCharacters.push(
