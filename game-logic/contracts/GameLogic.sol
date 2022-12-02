@@ -24,9 +24,9 @@ contract GameLogic is ERC721 {
     struct BigBoss {
         string name;
         string imageURI;
-        uint hp;
-        uint maxHp;
-        uint attackDamage;
+        uint256 hp;
+        uint256 maxHp;
+        uint256 attackDamage;
     }
 
     BigBoss public bigBoss;
@@ -43,8 +43,8 @@ contract GameLogic is ERC721 {
         uint256[] memory characterAttackDmg,
         string memory bossName,
         string memory bossImageURI,
-        uint bossHp,
-        uint bossAttackDamage
+        uint256 bossHp,
+        uint256 bossAttackDamage
     ) ERC721("NFTGame", "ONFTG") {
         bigBoss = BigBoss({
             name: bossName,
@@ -102,6 +102,46 @@ contract GameLogic is ERC721 {
         nftHolders[msg.sender] = newItemId;
 
         _tokenIds.increment();
+    }
+
+    function attackBoss() public {
+        uint256 nftTokenIdOfPlayer = nftHolders[msg.sender];
+        CharacterAttributes storage player = nftHoldersAttributes[
+            nftTokenIdOfPlayer
+        ];
+        console.log(
+            "\nPlayer w/ character %s about to attack. Has %s HP and %s AD",
+            player.name,
+            player.hp,
+            player.attackDamage
+        );
+        console.log(
+            "Boss %s has %s HP and %s AD",
+            bigBoss.name,
+            bigBoss.hp,
+            bigBoss.attackDamage
+        );
+
+        require(player.hp > 0, "Error: character must have HP to attack boss");
+        require(bigBoss.hp > 0, "Error: boss must have HP to attack character");
+
+        // 4. プレイヤーがボスを攻撃できるようにする。
+        if (bigBoss.hp < player.attackDamage) {
+            bigBoss.hp = 0;
+        } else {
+            bigBoss.hp = bigBoss.hp - player.attackDamage;
+        }
+        // 5. ボスがプレイヤーを攻撃できるようにする。
+        if (player.hp < bigBoss.attackDamage) {
+            player.hp = 0;
+        } else {
+            player.hp = player.hp - bigBoss.attackDamage;
+        }
+
+        // プレイヤーの攻撃をターミナルに出力する。
+        console.log("Player attacked boss. New boss hp: %s", bigBoss.hp);
+        // ボスの攻撃をターミナルに出力する。
+        console.log("Boss attacked player. New player hp: %s\n", player.hp);
     }
 
     function tokenURI(uint256 _tokenId)
