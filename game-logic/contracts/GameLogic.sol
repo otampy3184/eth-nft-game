@@ -53,6 +53,13 @@ contract GameLogic is ERC721 {
             maxHp: bossHp,
             attackDamage: bossAttackDamage
         });
+        console.log(
+            "Done initializing boss %s w/ HP %s, img %s",
+            bigBoss.name,
+            bigBoss.hp,
+            bigBoss.imageURI
+        );
+
         // ゲームで扱う全てのキャラクターをループ処理で呼び出し、それぞれのキャラクターに付与されるデフォルト値をコントラクトに保存
         for (uint256 i = 0; i < characterNames.length; i += 1) {
             defaultCharacters.push(
