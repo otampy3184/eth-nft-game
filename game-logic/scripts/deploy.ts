@@ -1,23 +1,52 @@
 import { ethers } from "hardhat";
 
-async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+const main = async () => {
+  // これにより、`MyEpicGame` コントラクトがコンパイルされます。
+  // コントラクトがコンパイルされたら、コントラクトを扱うために必要なファイルが
+  // `artifacts` ディレクトリの直下に生成されます。
+  const gameContractFactory = await ethers.getContractFactory("MyEpicGame");
+  // Hardhat がローカルの Ethereum ネットワークを、コントラクトのためだけに作成します。
+  const gameContract = await gameContractFactory.deploy(
+    ["ZORO", "NAMI", "USOPP"], // キャラクターの名前
+    [
+      "https://i.imgur.com/TZEhCTX.png", // キャラクターの画像
+      "https://i.imgur.com/WVAaMPA.png",
+      "https://i.imgur.com/pCMZeiM.png",
+    ],
+    [100, 200, 300],
+    [100, 50, 25],
+    "CROCODILE", // Bossの名前
+    "https://i.imgur.com/BehawOh.png", // Bossの画像
+    10000, // Bossのhp
+    50 // Bossの攻撃力
+  );
+  // ここでは、nftGame コントラクトが、
+  // ローカルのブロックチェーンにデプロイされるまで待つ処理を行っています。
+  const nftGame = await gameContract.deployed();
 
-  const lockedAmount = ethers.utils.parseEther("1");
+  console.log("Contract deployed to:", nftGame.address);
+  let txn;
+  // 3体のNFTキャラクターの中から、3番目のキャラクターを Mint しています。
+  txn = await gameContract.mintCharacterNFT(2);
 
-  const Lock = await ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  // Minting が仮想マイナーにより、承認されるのを待ちます。
+  await txn.wait();
+  txn = await gameContract.attackBoss();
+  await txn.wait();
+  console.log("First attack.");
+  txn = await gameContract.attackBoss();
+  await txn.wait();
+  console.log("Second attack.");
 
-  await lock.deployed();
-
-  console.log(`Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`);
-}
-
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  console.log("Done!");
+};
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+runMain();
