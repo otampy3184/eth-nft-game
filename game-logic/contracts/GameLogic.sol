@@ -151,6 +151,20 @@ contract GameLogic is ERC721 {
         console.log("Boss attacked player. New player hp: %s\n", player.hp);
     }
 
+    function checkIfUserHasNFT() public view returns(CharacterAttributes memory){
+        // ユーザーのTokenIdを取得
+        uint256 userNftTokenId = nftHolders[msg.sender];
+
+        // ユーザーがNFTを持っている場合、そのキャラクターの属性情報を返す
+        if (userNftTokenId > 0) {
+            return nftHoldersAttributes[userNftTokenId];
+        } else {
+            // 持っていなかったらからの文字列を返す
+            CharacterAttributes memory emptyStruct;
+            return emptyStruct;
+        }
+    }
+
     function tokenURI(uint256 _tokenId)
         public
         view
