@@ -165,6 +165,10 @@ contract GameLogic is ERC721 {
         }
     }
 
+    function getAllDefaultCharacters() public view returns (CharacterAttributes[] memory) {
+        return defaultCharacters;
+    }
+
     function tokenURI(uint256 _tokenId)
         public
         view
